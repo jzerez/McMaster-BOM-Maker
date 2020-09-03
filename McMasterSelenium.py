@@ -1,4 +1,5 @@
 from selenium import webdriver
+import time
 def make_url(part_num):
     url = "https://www.mcmaster.com/#" + part_num
     return url
@@ -8,10 +9,10 @@ def has_numbers(input_string):
 
 def scrape(part_num):
     fetched_info = {'name': 'N/A', 'price_per_unit': 'N/A', '#_per_unit': 'N/A'}
-    chrome_path = r"C:\Users\jzerez\Desktop\chromedriver_win32\chromedriver.exe"
+    chrome_path = r"./chromedriver_win32/chromedriver.exe"
     driver = webdriver.Chrome(chrome_path)
     driver.get(make_url(part_num))
-
+    time.sleep(2)
     try:
         fetched_info['name'] = driver.find_elements_by_class_name("header-primary--pd")[0].text
     except:
@@ -45,7 +46,20 @@ def scrape(part_num):
 
 
 if __name__ == "__main__":
-    scrape('1946K44')
-    scrape('91251A055')
-    scrape('6705K13')
-    scrape('6495K24')
+    import csv
+    import pdb
+    fields = ['name', 'price_per_unit', '#_per_unit']
+    parts_file = open('parts.txt', 'r')
+
+    print('Part input loaded successfully!')
+    print('Starting web scraper')
+
+    with open('parts.csv', 'w') as csvfile:
+        csv_writer = csv.DictWriter(csvfile, fieldnames = fields)
+        csv_writer.writeheader()
+        for line in parts_file:
+            print(line)
+            info = scrape(line.strip(' ,:;'))
+            csv_writer.writerow(info)
+
+    print('CSV Created!')
